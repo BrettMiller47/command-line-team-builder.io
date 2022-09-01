@@ -1,11 +1,45 @@
 const fs = require("fs");
+const { get } = require("https");
 const inquirer = require("inquirer");
-const { start } = require("repl");
+const { allowedNodeEnvironmentFlags } = require("process");
 const { Manager } = require("./employees");
 const { Engineer } = require("./employees");
 const { Intern } = require("./employees");
 
-const startingHtmlContent = `
+// ---- ---- Main Program Start ---- ----
+// create manager's htmlContent
+const manager = createManager();
+const managerHtml = manager.getHtmlContent();
+
+// Add each engineer's and/or intern's HTML to teamHtml
+var teamHtml = ``;
+var isAnotherTeamMember = false;
+while (isAnotherTeamMember) {
+    inquirer
+        .prompt({
+            type: "list",
+            message: "Menu",
+            choices: ['Add Engineer', 'Add Intern', 'All team members added'],
+            name: "menu"
+        }).then((ans) => {            
+            if (ans.menu == 'Add Engineer') {
+                // add engineer's HTML content to teamHtml
+                let engineer = createEngineer();
+                teamHtml += engineer.getHtmlContent();
+            
+            } else if (ans.menu == 'Add Intern') {
+                // add intern's HTML content to teamHtml
+                let intern = createIntern();
+                teamHtml += intern.getHtmlContent();
+            
+            } else if (ans.menu == 'All team members added') {
+                isAnotherTeamMember = false;
+            }
+        });
+}
+
+// declare the startingHtml and endingHtml
+const startingHtml = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,32 +55,29 @@ const startingHtmlContent = `
 <body class="container-fluid m-0 p-0">
     <header id="rootElManager>" class="row col-12 m-0 p-0 bg-dark text-light text-center">
         <h1>My Team</h1>
-    </header>
-    <!-- header is rootEl for Manager card -->
-    <!-- Manager card is rootEl for other team members -->
-    <section id="rootElTeam" class="row p-0 d-flex justify-content-center">
-    </section>
-    </main>    
+    </header>`;
+const endingHtml = `
 </body>
 <script src="team.js"></script>
 </html>
 `;
 
-// Create index.html with starting template
-fs.writeFile('index.html', startingHtmlContent, (err) => {
+// assemble the finalHtml
+const finalHtml = startingHtml + managerHtml + teamHtml + endingHtml;
+
+// Write finalHtml to index.html
+fs.writeFile('index.html', finalHtml, (err) => {
     if (err) { throw err };
 });
-// Add the manager to the DOM
-addManager();
-// While adding members
-    // prompt user to decide Engineer or Intern
-    // if engineer...
-        // add engineer tp the DOM
-    // if Intern...
-        // add intern to the DOM
+// ---- ---- Main Program End ---- ----
 
-// Get Manager info and create their HTML card
-function addManager() {
+
+// ---- ---- Functions ---- ----
+/**
+ * Prompt's user to enter information about a manager then return's the constructed manager promise object
+ * Requires Inquirer.
+ */
+function createManager() {
     inquirer
         .prompt([
             {
@@ -68,18 +99,16 @@ function addManager() {
                 type: "input",
                 message: "Enter manager's office number:",
                 name: "officeNum"
-            },
-        ]).then((res) => 
-            new Manager(res.name, res.id, res.email, res.officeNum)
-        ).then((manager) => {
-            let htmlContent = manager.getHtmlContent();
-            console.log(htmlContent);
-        });
-        
+            }
+        ])
+        .then((res) => new Manager(res.name, res.id, res.email, res.officeNum))   
 }
 
-// Get Engineer info and create their HTML card
-function getEngineerInfo() {
+/**
+ * Prompt's user to enter information about an engineer then return's the constructed engineer promise object
+ * Requires Inquirer.
+ */
+function createEngineer() {
     inquirer
         .prompt([
             {
@@ -102,16 +131,15 @@ function getEngineerInfo() {
                 message: "Enter engineer's GitHub profile name:",
                 name: "githubName"
             },
-        ]).then((res) => 
-            new Engineer(res.name, res.id, res.email, res.githubName)
-        ).then((engineer) => {
-            let htmlContent = engineer.getHtmlContent();
-            console.log(htmlContent);
-        });
+        ])
+        .then((res) => new Engineer(res.name, res.id, res.email, res.githubName))
 }
 
-// Get Intern info and create their HTML card
-function getInternInfo() {
+/**
+ * Prompt's user to enter information about an intern then return's the constructed intern promise object
+ * Requires Inquirer.
+ */
+function createIntern() {
     inquirer
         .prompt([
             {
@@ -132,12 +160,8 @@ function getInternInfo() {
             {
                 type: "input",
                 message: "Enter intern's school:",
-                name: "officeNum"
+                name: "school"
             },
-        ]).then((res) => 
-            new Intern(res.name, res.id, res.email, res.school)
-        ).then((intern) => {
-            let htmlContent = intern.getHtmlContent();
-            console.log(htmlContent);
-        });
+        ])
+        .then((res) => new Intern(res.name, res.id, res.email, res.school))
 }
