@@ -2,9 +2,9 @@ const fs = require("fs");
 const { get } = require("https");
 const inquirer = require("inquirer");
 const { allowedNodeEnvironmentFlags } = require("process");
-const { Manager } = require("./employees");
-const { Engineer } = require("./employees");
-const { Intern } = require("./employees");
+const { Manager } = require("./js/employees");
+const { Engineer } = require("./js/employees");
+const { Intern } = require("./js/employees");
 
 // ---- ---- Main Program Start ---- ----
 // create manager's htmlContent

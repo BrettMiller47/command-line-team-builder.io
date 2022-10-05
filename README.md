@@ -6,7 +6,7 @@
     <br>
 </h1>
 
-<h4 align="center">Commnand line application for building teams with a manager, engineer(s), and intern(s)</h4>
+<h4 align="center">Command line application for building teams with a manager, engineer(s), and intern(s)</h4>
 
 <p align="center">
 <a href="#how-to-use">How To Use</a> •
