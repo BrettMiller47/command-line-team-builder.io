@@ -1,9 +1,9 @@
 const Employee = require('./employee');
 
 class Manager extends Employee {
-  constructor(name, id, email, officeNum) {
+  constructor(name, id, email, office) {
       super(name, id, email);
-      this.officeNum = officeNum;
+      this.office = office;
   }
   
   /**
@@ -18,7 +18,7 @@ class Manager extends Employee {
           <ul class="list-group list-group-flush p-2">
               <li class="list-group-item">ID: ${this.id}</li>
               <li class="list-group-item">Email: <a href="${this.email}">${this.email}</a></li>
-              <li class="list-group-item">Office: ${this.officeNum}</li>
+              <li class="list-group-item">Office: ${this.office}</li>
           </ul>
       </div>
   </section>

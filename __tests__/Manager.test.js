@@ -18,7 +18,7 @@ describe('Manager', () => {
   });
 
   it('should return a manager with the passed in office number', () => {
-    expect(myManager.officeNum).toBe(3);
+    expect(myManager.office).toBe(3);
   });
 
   it('should return the role "Manager" via the getRole() method', () => {

@@ -1,44 +1,13 @@
 const fs = require("fs");
+const async = require('async');
 const { get } = require("https");
 const inquirer = require("inquirer");
 const { allowedNodeEnvironmentFlags } = require("process");
-const { Manager } = require("./js/employees");
-const { Engineer } = require("./js/employees");
-const { Intern } = require("./js/employees");
+require('./js/employee');
+const Manager = require("./js/manager");
+const Engineer = require("./js/engineer");
+const Intern = require("./js/intern");
 
-// ---- ---- Main Program Start ---- ----
-// create manager's htmlContent
-const manager = createManager();
-const managerHtml = manager.getHtmlContent();
-
-// Add each engineer's and/or intern's HTML to teamHtml
-var teamHtml = ``;
-var isAnotherTeamMember = false;
-while (isAnotherTeamMember) {
-    inquirer
-        .prompt({
-            type: "list",
-            message: "Menu",
-            choices: ['Add Engineer', 'Add Intern', 'All team members added'],
-            name: "menu"
-        }).then((ans) => {            
-            if (ans.menu == 'Add Engineer') {
-                // add engineer's HTML content to teamHtml
-                let engineer = createEngineer();
-                teamHtml += engineer.getHtmlContent();
-            
-            } else if (ans.menu == 'Add Intern') {
-                // add intern's HTML content to teamHtml
-                let intern = createIntern();
-                teamHtml += intern.getHtmlContent();
-            
-            } else if (ans.menu == 'All team members added') {
-                isAnotherTeamMember = false;
-            }
-        });
-}
-
-// declare the startingHtml and endingHtml
 const startingHtml = `
 <!DOCTYPE html>
 <html lang="en">
@@ -62,106 +31,135 @@ const endingHtml = `
 </html>
 `;
 
-// assemble the finalHtml
-const finalHtml = startingHtml + managerHtml + teamHtml + endingHtml;
+var teamHtml = ``;
 
-// Write finalHtml to index.html
-fs.writeFile('index.html', finalHtml, (err) => {
-    if (err) { throw err };
-});
-// ---- ---- Main Program End ---- ----
+// TODO: get manager prompt to show
+// ! .then() --------------------
+// inquirer
+//     .prompt(
+//         {
+//             type: "input",
+//             message: "Enter Manager's name:",
+//             name: "name"
+//         },
+//         {
+//             type: "input",
+//             message: "Enter Manager's id:",
+//             name: "id"
+//         },
+//         {
+//             type: "input",
+//             message: "Enter Manager's email:",
+//             name: "email"
+//         },
+//         {
+//             type: "input",
+//             message: "Enter Manager's office number:",
+//             name: "office"
+//         }
+//     ).then((answers) => {
+//         const manager = new Manager(answers.name, answers.id, answers.email, answers.office);
+//         managerHtml = manager.getHtmlContent;
+//         inquirer.prompt({
+//             type: 'list',
+//             message: 'What would you like to do?',
+//             choices: ['Add Engineer', 'Add Intern', 'Finish Building Team'],
+//             name: 'menu'
+//         }).then((answer) => {
+//             if (answer.menu == 'Add Engineer') {
+//                 const engineer = new Engineer(answers.name, answers.id, answers.email, answers.githubName);
+//                 engineerHtml = engineer.getHtmlContent;
+//                 teamHtml += engineerHtml;
+//                 inquirer.prompt({
+//                     type: 'list',
+//                     message: 'What would you like to do?',
+//                     choices: ['Add Engineer', 'Add Intern', 'Finish Building Team'],
+//                     name: 'menu'
+//                 }).then((answer) => {
+//                     if (answer.menu == 'Add Engineer') {
+//                         const engineer = new Engineer(answers.name, answers.id, answers.email, answers.githubName);
+//                         engineerHtml = engineer.getHtmlContent;
+//                         teamHtml += engineerHtml;
+//                     } else if (answer.menu == 'Add Intern') {
+//                         const intern = new Intern(answers.name, answers.id, answers.email, answers.school);
+//                         internHtml = intern.getHtmlContent;
+//                         teamHtml += internHtml;
+//                     } else {
+//                         const finalHtml = startingHtml + managerHtml + teamHtml + endingHtml;
+//                         fs.writeFile('index.html', finalHtml, (err) => {
+//                             if (err) { throw err };
+//                         });
+//                     }
+//                 });
+//             } else if (answer.menu == 'Add Intern') {
+//                 const intern = new Intern(answers.name, answers.id, answers.email, answers.school);
+//                 internHtml = intern.getHtmlContent;
+//                 teamHtml += internHtml;
+//                 inquirer.prompt({
+//                     type: 'list',
+//                     message: 'What would you like to do?',
+//                     choices: ['Add Engineer', 'Add Intern', 'Finish Building Team'],
+//                     name: 'menu'
+//                 }).then((answer) => {
+//                     if (answer.menu == 'Add Engineer') {
+//                         const engineer = new Engineer(answers.name, answers.id, answers.email, answers.githubName);
+//                         engineerHtml = engineer.getHtmlContent;
+//                         teamHtml += engineerHtml;
+//                     } else if (answer.menu == 'Add Intern') {
+//                         const intern = new Intern(answers.name, answers.id, answers.email, answers.school);
+//                         internHtml = intern.getHtmlContent;
+//                         teamHtml += internHtml;
+//                     } else {
+//                         const finalHtml = startingHtml + managerHtml + teamHtml + endingHtml;
+//                         fs.writeFile('index.html', finalHtml, (err) => {
+//                             if (err) { throw err };
+//                         });
+//                     }
+//                 });
+//             } else {
+//                 // assemble the finalHtml
+//                 const finalHtml = startingHtml + managerHtml + teamHtml + endingHtml;
+
+//                 // Write finalHtml to index.html
+//                 fs.writeFile('index.html', finalHtml, (err) => {
+//                      if (err) { throw err };
+//                 });
+//             }
+//         });
+//     });
+// ! ----------------------------
 
 
-// ---- ---- Functions ---- ----
-/**
- * Prompt's user to enter information about a manager then return's the constructed manager promise object
- * Requires Inquirer.
- */
-function createManager() {
-    inquirer
-        .prompt([
-            {
-                type: "input",
-                message: "Enter manager's name:",
-                name: "name"
-            },
-            {
-                type: "input",
-                message: "Enter manager's ID number:",
-                name: "id"
-            },
-            {
-                type: "input",
-                message: "Enter manager's email:",
-                name: "email"
-            },
-            {
-                type: "input",
-                message: "Enter manager's office number:",
-                name: "officeNum"
-            }
-        ])
-        .then((res) => new Manager(res.name, res.id, res.email, res.officeNum))   
-}
 
-/**
- * Prompt's user to enter information about an engineer then return's the constructed engineer promise object
- * Requires Inquirer.
- */
-function createEngineer() {
-    inquirer
-        .prompt([
-            {
-                type: "input",
-                message: "Enter engineer's name:",
-                name: "name"
-            },
-            {
-                type: "input",
-                message: "Enter engineer's ID number:",
-                name: "id"
-            },
-            {
-                type: "input",
-                message: "Enter engineer's email:",
-                name: "email"
-            },
-            {
-                type: "input",
-                message: "Enter engineer's GitHub profile name:",
-                name: "githubName"
-            },
-        ])
-        .then((res) => new Engineer(res.name, res.id, res.email, res.githubName))
-}
 
-/**
- * Prompt's user to enter information about an intern then return's the constructed intern promise object
- * Requires Inquirer.
- */
-function createIntern() {
-    inquirer
-        .prompt([
-            {
-                type: "input",
-                message: "Enter intern's name:",
-                name: "name"
-            },
-            {
-                type: "input",
-                message: "Enter intern's ID number:",
-                name: "id"
-            },
-            {
-                type: "input",
-                message: "Enter intern's email:",
-                name: "email"
-            },
-            {
-                type: "input",
-                message: "Enter intern's school:",
-                name: "school"
-            },
-        ])
-        .then((res) => new Intern(res.name, res.id, res.email, res.school))
-}
+// ! ASYNC ----------------------
+// main();
+// async function main() {
+//     await loadManagerPrompt();
+// };
+
+// async function loadManagerPrompt() {
+//     const { name, id, email, office} = await inquirer.prompt(
+//         {
+//             type: "input",
+//             message: "Enter Manager's name:",
+//             name: "name"
+//         },
+//         {
+//             type: "input",
+//             message: "Enter Manager's id:",
+//             name: "id"
+//         },
+//         {
+//             type: "input",
+//             message: "Enter Manager's email:",
+//             name: "email"
+//         },
+//         {
+//             type: "input",
+//             message: "Enter Manager's office number:",
+//             name: "officeNum"
+//         }
+//     );
+// }
+// ! ---------------------------
