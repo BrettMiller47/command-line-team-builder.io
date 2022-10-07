@@ -1,9 +1,5 @@
 <h1 align="center">
-    <br>
-    <a href="https://github.com/BrettMiller47/command-line-team-builder.io"><img src="./assets/images/screenshot.jpg" alt="Command Line Team Builder" width="200"></a>
-    <br>
     Command Line Team Builder
-    <br>
 </h1>
 
 <h4 align="center">Command line application for building teams with a manager, engineer(s), and intern(s)</h4>
@@ -14,25 +10,17 @@
 <a href="#test-instructions">Test Instructions</a>
 </p>
 
-<h1 align="center">
-    <img src="./assets/images/screenshot.jpg" alt="README Generator">
-</h1>
-
 ## How To Use
 
-Use to keep track of your teams.
+Run `node team.js` after installation.
 
 ## Installation Instructions
 
-Clone the repository from GitHub.
+Clone the repository from GitHub and run `npm i` from the terminal directory.
 
 ## Test Instructions
 
-Run 'npm i'. Then run 'node team.js'.
-
-## Contributions
-
-Please contact via email to contribute.
+Run `npm run test`.
 
 ## License
 

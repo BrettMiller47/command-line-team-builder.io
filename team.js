@@ -1,14 +1,10 @@
 const fs = require("fs");
-const async = require('async');
-const { get } = require("https");
 const inquirer = require("inquirer");
-const { allowedNodeEnvironmentFlags } = require("process");
-require('./js/employee');
 const Manager = require("./js/manager");
 const Engineer = require("./js/engineer");
 const Intern = require("./js/intern");
 
-const startingHtml = `
+var startingHtml = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -31,135 +27,113 @@ const endingHtml = `
 </html>
 `;
 
-var teamHtml = ``;
+function loadEngineerPrompt() {
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "Enter Engineer's name:",
+            name: "name"
+        },
+        {
+            type: "input",
+            message: "Enter Engineer's id:",
+            name: "id"
+        },
+        {
+            type: "input",
+            message: "Enter Engineer's email:",
+            name: "email"
+        },
+        {
+            type: "input",
+            message: "Enter Engineer's GitHub username:",
+            name: "github"
+        }]).then((ans) => {
+            // create manager
+            const engineer = new Engineer(ans.name, ans.id, ans.email, ans.github);
+            // append manager's html to startingHtml
+            startingHtml += engineer.getHtmlContent();
+        }).then(loadMenuPrompt);
+}
 
-// TODO: get manager prompt to show
-// ! .then() --------------------
-// inquirer
-//     .prompt(
-//         {
-//             type: "input",
-//             message: "Enter Manager's name:",
-//             name: "name"
-//         },
-//         {
-//             type: "input",
-//             message: "Enter Manager's id:",
-//             name: "id"
-//         },
-//         {
-//             type: "input",
-//             message: "Enter Manager's email:",
-//             name: "email"
-//         },
-//         {
-//             type: "input",
-//             message: "Enter Manager's office number:",
-//             name: "office"
-//         }
-//     ).then((answers) => {
-//         const manager = new Manager(answers.name, answers.id, answers.email, answers.office);
-//         managerHtml = manager.getHtmlContent;
-//         inquirer.prompt({
-//             type: 'list',
-//             message: 'What would you like to do?',
-//             choices: ['Add Engineer', 'Add Intern', 'Finish Building Team'],
-//             name: 'menu'
-//         }).then((answer) => {
-//             if (answer.menu == 'Add Engineer') {
-//                 const engineer = new Engineer(answers.name, answers.id, answers.email, answers.githubName);
-//                 engineerHtml = engineer.getHtmlContent;
-//                 teamHtml += engineerHtml;
-//                 inquirer.prompt({
-//                     type: 'list',
-//                     message: 'What would you like to do?',
-//                     choices: ['Add Engineer', 'Add Intern', 'Finish Building Team'],
-//                     name: 'menu'
-//                 }).then((answer) => {
-//                     if (answer.menu == 'Add Engineer') {
-//                         const engineer = new Engineer(answers.name, answers.id, answers.email, answers.githubName);
-//                         engineerHtml = engineer.getHtmlContent;
-//                         teamHtml += engineerHtml;
-//                     } else if (answer.menu == 'Add Intern') {
-//                         const intern = new Intern(answers.name, answers.id, answers.email, answers.school);
-//                         internHtml = intern.getHtmlContent;
-//                         teamHtml += internHtml;
-//                     } else {
-//                         const finalHtml = startingHtml + managerHtml + teamHtml + endingHtml;
-//                         fs.writeFile('index.html', finalHtml, (err) => {
-//                             if (err) { throw err };
-//                         });
-//                     }
-//                 });
-//             } else if (answer.menu == 'Add Intern') {
-//                 const intern = new Intern(answers.name, answers.id, answers.email, answers.school);
-//                 internHtml = intern.getHtmlContent;
-//                 teamHtml += internHtml;
-//                 inquirer.prompt({
-//                     type: 'list',
-//                     message: 'What would you like to do?',
-//                     choices: ['Add Engineer', 'Add Intern', 'Finish Building Team'],
-//                     name: 'menu'
-//                 }).then((answer) => {
-//                     if (answer.menu == 'Add Engineer') {
-//                         const engineer = new Engineer(answers.name, answers.id, answers.email, answers.githubName);
-//                         engineerHtml = engineer.getHtmlContent;
-//                         teamHtml += engineerHtml;
-//                     } else if (answer.menu == 'Add Intern') {
-//                         const intern = new Intern(answers.name, answers.id, answers.email, answers.school);
-//                         internHtml = intern.getHtmlContent;
-//                         teamHtml += internHtml;
-//                     } else {
-//                         const finalHtml = startingHtml + managerHtml + teamHtml + endingHtml;
-//                         fs.writeFile('index.html', finalHtml, (err) => {
-//                             if (err) { throw err };
-//                         });
-//                     }
-//                 });
-//             } else {
-//                 // assemble the finalHtml
-//                 const finalHtml = startingHtml + managerHtml + teamHtml + endingHtml;
+function loadInternPrompt() {
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "Enter Intern's name:",
+            name: "name"
+        },
+        {
+            type: "input",
+            message: "Enter Intern's id:",
+            name: "id"
+        },
+        {
+            type: "input",
+            message: "Enter Intern's email:",
+            name: "email"
+        },
+        {
+            type: "input",
+            message: "Enter Intern's school:",
+            name: "school"
+        }]).then((ans) => {
+            // create manager
+            const intern = new Intern(ans.name, ans.id, ans.email, ans.school);
+            // append manager's html to startingHtml
+            startingHtml += intern.getHtmlContent();
+        }).then(loadMenuPrompt);
+}
 
-//                 // Write finalHtml to index.html
-//                 fs.writeFile('index.html', finalHtml, (err) => {
-//                      if (err) { throw err };
-//                 });
-//             }
-//         });
-//     });
-// ! ----------------------------
+function loadMenuPrompt() {
+    inquirer.prompt([{
+        type: 'list',
+        message: 'What would you like to do?',
+        choices: ['Add Engineer', 'Add Intern', 'Finish Building Team'],
+        name: 'menu'
+    }]).then((ans) => {
+        if (ans.menu == 'Add Engineer') {
+            loadEngineerPrompt();
+        } else if (ans.menu == 'Add Intern') {
+            loadInternPrompt();
+        } else {
+            // assemble the finalHtml
+            const finalHtml = startingHtml + endingHtml;
+            // Write finalHtml to index.html
+            fs.writeFile('index.html', finalHtml, (err) => {
+                    if (err) { throw err };
+            });
+        }
+    });
+}
 
+function beginPrompts() {
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "Enter Manager's name:",
+            name: "name"
+        },
+        {
+            type: "input",
+            message: "Enter Manager's id:",
+            name: "id"
+        },
+        {
+            type: "input",
+            message: "Enter Manager's email:",
+            name: "email"
+        },
+        {
+            type: "input",
+            message: "Enter Manager's office number:",
+            name: "officeNum"
+        }]).then((ans) => {
+            // create manager
+            const manager = new Manager(ans.name, ans.id, ans.email, ans.officeNum);
+            // append manager's html to startingHtml
+            startingHtml += manager.getHtmlContent();
+        }).then(loadMenuPrompt);
+}
 
-
-
-// ! ASYNC ----------------------
-// main();
-// async function main() {
-//     await loadManagerPrompt();
-// };
-
-// async function loadManagerPrompt() {
-//     const { name, id, email, office} = await inquirer.prompt(
-//         {
-//             type: "input",
-//             message: "Enter Manager's name:",
-//             name: "name"
-//         },
-//         {
-//             type: "input",
-//             message: "Enter Manager's id:",
-//             name: "id"
-//         },
-//         {
-//             type: "input",
-//             message: "Enter Manager's email:",
-//             name: "email"
-//         },
-//         {
-//             type: "input",
-//             message: "Enter Manager's office number:",
-//             name: "officeNum"
-//         }
-//     );
-// }
-// ! ---------------------------
+beginPrompts();
