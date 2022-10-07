@@ -10,6 +10,10 @@
 <a href="#test-instructions">Test Instructions</a>
 </p>
 
+
+https://user-images.githubusercontent.com/59093846/194671991-2742a827-95e9-4523-9ccd-5e8821a520c3.mov
+
+
 ## How To Use
 
 Run `node team.js` after installation.
